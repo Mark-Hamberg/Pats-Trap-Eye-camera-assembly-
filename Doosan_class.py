@@ -41,6 +41,9 @@ class Doosan:
         else:
             tp_log('Not in the right position')
 
+    def hello(self):
+        print("help")
+
 
 robot = Doosan()
 

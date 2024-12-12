@@ -4,6 +4,9 @@ from PIL import Image, ImageTk
 import threading
 import queue
 
+from Doosan_class import *
+
+
 # Initialize counters
 success_count = 0
 reject_count = 0
@@ -11,6 +14,36 @@ cap = None  # Video capture variable
 
 # Queue for communication between terminal input and GUI
 input_queue = queue.Queue()
+
+def manual_input_simulation():
+    """Simulate terminal input by letting the user enter data."""
+    while True:
+        response = input("Enter robot response (1 for success, 0 for reject): ")
+        input_queue.put(response)  # Put the response in the queue
+
+def update_counters(response_type):
+    """Update counters based on the response."""
+    global success_count, reject_count
+
+    if response_type == "success":
+        success_count += 1
+        success_label.config(text=f"Successful PCBs: {success_count}")
+        status_label.config(text="Status: PCB placed in Success Box!")
+    elif response_type == "reject":
+        reject_count += 1
+        reject_label.config(text=f"Rejected PCBs: {reject_count}")
+        status_label.config(text="Status: PCB placed in Reject Box!")
+
+
+
+
+
+
+
+
+
+
+
 
 def start_action():
     """Simulate start action."""
@@ -66,25 +99,6 @@ def listen_to_robot():
         except Exception as e:
             print(f"Error: {e}")
 
-def manual_input_simulation():
-    """Simulate terminal input by letting the user enter data."""
-    while True:
-        response = input("Enter robot response (1 for success, 0 for reject): ")
-        input_queue.put(response)  # Put the response in the queue
-
-def update_counters(response_type):
-    """Update counters based on the response."""
-    global success_count, reject_count
-
-    if response_type == "success":
-        success_count += 1
-        success_label.config(text=f"Successful PCBs: {success_count}")
-        status_label.config(text="Status: PCB placed in Success Box!")
-    elif response_type == "reject":
-        reject_count += 1
-        reject_label.config(text=f"Rejected PCBs: {reject_count}")
-        status_label.config(text="Status: PCB placed in Reject Box!")
-
 def reset_counters():
     """Reset all counters to zero."""
     global success_count, reject_count
@@ -99,38 +113,70 @@ def exit_application():
     stop_camera()
     root.destroy()
 
+def switch_to_test2():
+    """Switch the current screen to the Test2 view."""
+    clear_screen()
+    tk.Label(root, text="Test2 View", font=("Arial", 16)).pack(pady=10)
+
+    dummy_button1 = tk.Button(root, text="Dummy Button 1", font=("Arial", 12))
+    dummy_button1.pack(pady=5)
+
+    dummy_button2 = tk.Button(root, text="Dummy Button 2", font=("Arial", 12))
+    dummy_button2.pack(pady=5)
+
+    back_button = tk.Button(root, text="Back", font=("Arial", 12), command=setup_gui)
+    back_button.pack(pady=20)
+
+def clear_screen():
+    """Remove all widgets from the root window."""
+    for widget in root.winfo_children():
+        widget.destroy()
+
+def setup_gui():
+    """Setup the GUI components."""
+    clear_screen()
+
+    robot = Doosan()   # Initiate a robot for doosan class
+
+    global success_label, reject_label, status_label, video_label
+
+    # Labels for counters
+    success_label = tk.Label(root, text=f"Successful PCBs: {success_count}", font=("Arial", 14))
+    success_label.pack(pady=10)
+
+    reject_label = tk.Label(root, text=f"Rejected PCBs: {reject_count}", font=("Arial", 14))
+    reject_label.pack(pady=10)
+
+    # Status label
+    status_label = tk.Label(root, text="Status: Waiting for action...", font=("Arial", 12), fg="blue")
+    status_label.pack(pady=10)
+
+    # Buttons
+    start_button = tk.Button(root, text="Start", font=("Arial", 12), command=start_action, bg="green", fg="white")
+    start_button.pack(pady=5)
+
+    test_button = tk.Button(root, text="Test", font=("Arial", 12), command=test_action, bg="blue", fg="white")
+    test_button.pack(pady=5)
+
+    test2_button = tk.Button(root, text="Test2", font=("Arial", 12), command=switch_to_test2, bg="orange", fg="white")
+    test2_button.pack(pady=5)
+
+    reset_button = tk.Button(root, text="Reset Counters", font=("Arial", 12), command=reset_counters)
+    reset_button.pack(pady=10)
+
+    exit_button = tk.Button(root, text="Exit", font=("Arial", 12), command=exit_application, bg="red", fg="white")
+    exit_button.pack(pady=10)
+
+    # Video display
+    video_label = tk.Label(root)
+    video_label.pack()
+
 # GUI setup
 root = tk.Tk()
 root.title("PCB Testing Interface")
 root.geometry("800x600")
 
-# Labels for counters
-success_label = tk.Label(root, text="Successful PCBs: 0", font=("Arial", 14))
-success_label.pack(pady=10)
-
-reject_label = tk.Label(root, text="Rejected PCBs: 0", font=("Arial", 14))
-reject_label.pack(pady=10)
-
-# Status label
-status_label = tk.Label(root, text="Status: Waiting for action...", font=("Arial", 12), fg="blue")
-status_label.pack(pady=10)
-
-# Buttons
-start_button = tk.Button(root, text="Start", font=("Arial", 12), command=start_action, bg="green", fg="white")
-start_button.pack(pady=5)
-
-test_button = tk.Button(root, text="Test", font=("Arial", 12), command=test_action, bg="blue", fg="white")
-test_button.pack(pady=5)
-
-reset_button = tk.Button(root, text="Reset Counters", font=("Arial", 12), command=reset_counters)
-reset_button.pack(pady=10)
-
-exit_button = tk.Button(root, text="Exit", font=("Arial", 12), command=exit_application, bg="red", fg="white")
-exit_button.pack(pady=10)
-
-# Video display
-video_label = tk.Label(root)
-video_label.pack()
+setup_gui()
 
 # Start a thread for manual input simulation
 threading.Thread(target=manual_input_simulation, daemon=True).start()
