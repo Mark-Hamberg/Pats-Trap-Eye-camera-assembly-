@@ -60,13 +60,13 @@ def bounding_box(image, results):
 
 cap = cv.VideoCapture(2)
 if not cap.isOpened():
-    print("Camera kan niet openen")
+    print("Camera can't be opened")
     exit()
 else:
-    print("Camera aan")
+    print("Camera on")
 
 
-# In[36]:
+# In[38]:
 
 
 ret, frame = cap.read()
@@ -80,16 +80,16 @@ try:
 except: 
     UnboundLocalError
     bb = (0,0)
-    print('Geen camera geplaatst')
+    print('No camera')
 
 
-# In[37]:
+# In[40]:
 
 
 if 130 < bb[0] < 185:
-    print('Camera zit goed')
+    print('Camera is placed correctly')
 else:
-    print('Camera zit niet goed')
+    print('Camera is not placed correctly')
 
 
 # In[ ]:
