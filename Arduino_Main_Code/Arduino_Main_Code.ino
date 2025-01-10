@@ -20,6 +20,9 @@ void setup() {
   pinMode(pinAct2In, OUTPUT);
   pinMode(pinAct2Out, OUTPUT);
 
+  pinMode(analogPin, INPUT);
+
+
   myservo.attach(9); // Servo attach to pin 9
 }
 
@@ -52,7 +55,8 @@ void RetractAct(int actuator)
 }
 
 void loop() {
-  val = (analogRead(analogPin) / 1023);  // read the input pin
+  val = (analogRead(analogPin) );  // read the input pin
+  val = val * (5.0 / 1023.0);
   Serial.println(val);          // debug value
 
   if (val >= 0.0 && val <= 0.4) { //Nothing
