@@ -6,6 +6,9 @@
 #define X_DIR_PIN 2
 #define X_ENABLE_PIN 8
 
+
+int endswitchPin = 6;   // De pin waarop de eindschakelaar is aangesloten
+
 int analogPin = A0; // potentiometer read the Robot arm value
 float val = 0;  // variable to store the value read
 
@@ -34,14 +37,34 @@ void setup() {
   pinMode(pinAct2Out, OUTPUT);
 
   pinMode(analogPin, INPUT);
+  pinMode(endswitchPin, INPUT_PULLUP);
 
 
   myservo.attach(9); // Servo attach to pin 9
 }
 
-void ServoCamera(int Position){ //0 degree: open  //90 degree: close
-  myservo.write(Position);   
+// void EndSwitch(){
+//   switchState = digitalRead(endswitchPin);
+
+//   // Toon de status van de eindschakelaar in de seriële monitor
+//   if (switchState == LOW) {
+//     Serial.println("Eindschakelaar is ingedrukt (NO gesloten).");
+//   } else {
+//     Serial.println("Eindschakelaar is niet ingedrukt (NO open).");
+//   }
+//   delay(500);
+// }
+
+void ServoCameraClose(int Position){ //0 degree: open  //90 degree: close
+  for (int pos=30; pos <=89; pos++){
+    myservo.write(pos);
+    delay(15);
   }
+}
+
+void ServoCameraOpen(int Position){ //0 degree: open  //90 degree: close
+  myservo.write(30);
+}
 
 void ExtendAct(int actuator)
 {
@@ -49,11 +72,13 @@ void ExtendAct(int actuator)
   if (actuator==1){ // actuator 1 is opening actuator
     digitalWrite(pinAct1In, HIGH);
     digitalWrite(pinAct1Out, LOW);
-    delay(8000);      }
+    //delay(8000);      
+    }
   else {
     digitalWrite(pinAct2In, HIGH);
     digitalWrite(pinAct2Out, LOW);
-    delay(4000);      }
+    //delay(4000);      
+    }
 }
 
 void RetractAct(int actuator)
@@ -62,11 +87,24 @@ void RetractAct(int actuator)
   if (actuator==1){ // actuator 1 is opening actuator
     digitalWrite(pinAct1In, LOW);
     digitalWrite(pinAct1Out, HIGH);
-    delay(8000);    }
+    //delay(8000);   
+    }
   else {
     digitalWrite(pinAct2In, LOW);
     digitalWrite(pinAct2Out, HIGH);
-    delay(4000);    }
+    //delay(4000);    
+    }
+}
+
+void StilstandAct(int actuator) {
+  if (actuator==1){
+    digitalWrite(pinAct1In, LOW);
+    digitalWrite(pinAct1Out, LOW);
+  }
+  else {
+    digitalWrite(pinAct2In, LOW);
+    digitalWrite(pinAct2Out, LOW);
+  }
 }
 
 void loop() {
@@ -84,13 +122,23 @@ void loop() {
 
   if (val >= 0.0 && val <= 0.4) { //Nothing
   } else if (val >= 0.5 && val <= 1.0) { //Open Camera Gripper
-    ServoCamera(0);
+    ServoCameraOpen(30);
   } else if (val >= 1.1 && val <= 1.5) { //Close Camera Gripper
-    ServoCamera(90);
+    ServoCameraClose(89);
   } else if (val >= 1.6 && val <= 2.0) { //Extend Actuator 1
-    ExtendAct(1);
+    if (digitalRead(endswitchPin) == LOW) {
+      ExtendAct(1);
+    }
+    else {
+      StilstandAct(1);
+    }
   } else if (val >= 2.1 && val <= 2.5) { //Retract Actuator 1
-    RetractAct(1);
+    if (digitalRead(endswitchPin) == LOW) {
+      RetractAct(1);
+    }
+    else {
+      StilstandAct(1);
+    }
   } else if (val >= 2.6 && val <= 3.0) { //Extend Actuator 2
     ExtendAct(2);
   } else if (val >= 3.1 && val <= 3.5) { //Retract Actuator 2
