@@ -7,7 +7,7 @@
 #define X_ENABLE_PIN 8
 
 /*######################################################### Initiate ################################################################*/
-int endswitchPin = 6;   // De pin waarop de eindschakelaar is aangesloten
+int endswitchPin = 6;   // End switch pin actuator
 
 int analogPin = A0; // potentiometer read the Robot arm value
 float val = 0;  // variable to store the value read
@@ -29,8 +29,9 @@ uint64_t last_message_time = 0;
 
 /*######################################################### Set-Up ################################################################*/
 void setup() {
-  Serial.begin(9600);           //  setup serial
+  Serial.begin(115200);           //  setup serial
   
+  //Set-up all actuators outputs
   pinMode(pinAct1In, OUTPUT);
   pinMode(pinAct1Out, OUTPUT);
   pinMode(pinAct2In, OUTPUT);
@@ -40,7 +41,14 @@ void setup() {
   pinMode(endswitchPin, INPUT_PULLUP);
 
   myservo.attach(9); // Servo attach to pin 9
-  myservo.write(currentAngle);
+  currentAngle = myservo.read();
+
+  pinMode(X_ENABLE_PIN, OUTPUT);
+  digitalWrite(X_ENABLE_PIN, LOW);  // Enable the stepper driver
+
+  Serial.setTimeout(100);
+  stepper.setMaxSpeed(500);      // Set the maximum speed (steps per second)
+  stepper.setAcceleration(5000);   // Set the acceleration (steps per second^2)
 }
 
 /*######################################################### Functions ################################################################*/
@@ -57,32 +65,30 @@ void setup() {
 //   delay(500);
 // }
 
-void ServoCamera(int newAngle){ //0 degree: open  //90 degree: close
-  int stepDelay = 20;       // The delay between steps(ms), if increased: slow down gripper
+void ServoCamera(int newAngle){   // 0 degree: open  // 90 degree: close
+  int stepDelay = 20;             // The delay between steps(ms), if increased: slow down gripper
+  currentAngle = myservo.read();  // Update the current position
 
-  if (newAngle > currentAngle) {
+  if (newAngle > currentAngle) {  // If it is closing: move at a delayed speed
     for (int pos = currentAngle; pos <= newAngle; pos++) {
       myservo.write(pos);
       delay(stepDelay);
     }
-  } else {
+  } else {                        // If it is opening: move at a maximum speed
     for (int pos = currentAngle; pos >= newAngle; pos--) {
       myservo.write(pos);
-      //delay(stepDelay);
     }
   }
-  currentAngle = newAngle;  // Update de huidige positie
 }
 
 void ExtendAct(int actuator)
 {
   Serial.print("extend");
-  if (actuator==1){ // actuator 1 is opening actuator
+  if (actuator==1){             // open actuator 1
     digitalWrite(pinAct1In, HIGH);
     digitalWrite(pinAct1Out, LOW);
     //delay(8000);      
-    }
-  else {
+    }  else {                   // open actuator 2
     digitalWrite(pinAct2In, HIGH);
     digitalWrite(pinAct2Out, LOW);
     //delay(4000);      
@@ -92,12 +98,11 @@ void ExtendAct(int actuator)
 void RetractAct(int actuator)
 {
   Serial.print("retract");
-  if (actuator==1){ // actuator 1 is opening actuator
+  if (actuator==1){           // close actuator 1
     digitalWrite(pinAct1In, LOW);
     digitalWrite(pinAct1Out, HIGH);
     //delay(8000);   
-    }
-  else {
+    }  else {                 // open actuator 2
     digitalWrite(pinAct2In, LOW);
     digitalWrite(pinAct2Out, HIGH);
     //delay(4000);    
@@ -105,31 +110,25 @@ void RetractAct(int actuator)
 }
 
 void StilstandAct(int actuator) {
-  if (actuator==1){
+  if (actuator==1){           // stop actuator 1
     digitalWrite(pinAct1In, LOW);
     digitalWrite(pinAct1Out, LOW);
-  }
-  else {
+  }  else {                   // stop actuator 2
     digitalWrite(pinAct2In, LOW);
     digitalWrite(pinAct2Out, LOW);
   }
 }
 
-void GlueSation(long steps){  //full rotation of stepper motor is 1600 steps
-    if (steps != 0) {
-    last_message_time = millis();  // Register starttimeRegistreer starttijd van de beweging
-    
-    stepper.move(steps);           // Beweeg de steppermotor met het opgegeven aantal stappen
-    stepper.runToPosition();        // Wacht tot de beweging is voltooid
+void GlueStation(long steps){       //full rotation of stepper motor is 1600 steps
+  digitalWrite(X_ENABLE_PIN, LOW);
+  stepper.move(steps);              // Move the assigned amount of steps
+  stepper.runToPosition();          // Wait until the position is reached
+  Serial.println("Forward Done");
 
-    Serial.println("Done");         // Bevestiging dat de beweging klaar is
-  }
-
-  // Schakel de stepper uit als er 10 seconden geen beweging is geweest
-  if (millis() - last_message_time > 10 * 1000) {
-    digitalWrite(X_ENABLE_PIN, HIGH);  // Zet de steppermotor uit
-    Serial.println("Stepper disabled after timeout");
-  }
+  stepper.move(-steps);              // Move the assigned amount of steps
+  stepper.runToPosition();          // Wait until the position is reached
+  Serial.println("Backwards Done");
+  digitalWrite(X_ENABLE_PIN, HIGH);
 }
 
 /*######################################################### Loop ################################################################*/
@@ -163,7 +162,13 @@ void loop() {
   } else if (val >= 3.6 && val <= 4.0) { //Retract Actuator 2
     RetractAct(2);
   } else if (val >= 4.1 && val <= 4.5) { //Activate glue
-    GlueStation(320);
+    GlueStation(1275);
   } else if (val >= 4.6 && val <= 5.0) {}
-  val = 0.0;
+  val=0.0;
+  // Turn the stpper motor (glue station) off when it is not being used
+  last_message_time = millis();                   // Read the number of steps from the serial input
+  if (millis() - last_message_time > 10 * 1000) {
+    Serial.println("off");
+    digitalWrite(X_ENABLE_PIN, HIGH);
+  }
 }
