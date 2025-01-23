@@ -1,0 +1,45 @@
+from DRCF import *
+
+# Position coordinates
+firstpos = posj(-14.4, 0.5, -111.9, -3.0, -64.7, 161.8)
+firstpcb = posx(-127.9, 374.3, 300.7, 75.0, 164.1, -106.7)
+grabpcb = posx(-127.9, 375.3, 266.7, 75.0, 164.1, -106.7)
+grabpcb2 = posx(-127.9, 377.3, 266.7, 75.0, 164.1, -106.7)
+pcbholder = posx(-444.7, 255.1, 310, 179.7, 178.9, -91.1)
+pcbplace1 = posx(-449.7, 256.7, 210, 145.6, -178.9, -125.8)
+pcbplace2 = posx(-449.7, 256.7, 167, 145.6, -178.9, -125.8)
+pcbplace3 = posx(-448.5, 419.0, 210, 144.2, -178.6, -127.2)
+pcbplace4 = posx(-448.5, 419.0, 167, 144.2, -178.6, -127.1)
+middle = posx(-389.2, -154.1, 278.5, 118.7, 177.9, -155.6)
+middle2 = posx(-372.2, -441.0, 249.9, 90.1, -94.0, 177.8)
+camera = posx(-363.2, -659.3,240, 89.6, -90.0, -180.0)
+cameratray = posx(-363.2, -659.3, 177.0, 89.6, -90.0, -180.0)
+cameraalign = posx(-392.2, -271.1, 199.4, 2.9, -90.0, 180.0)
+cameraalign2 = posx(-392.2, -271.1, 164.4, 2.9, -90.0, 180.0)
+firstglue = posx(-557.0, -113.3, 249.4, 0.2, -89.5, -65.3)
+glue_station = posx(-551.2, -295.8, 244.6, 0.7, -89.5, -64.9)
+middle3 = posx(-677.5, 168.3, 318.0, 179.6, 91.7, -2.5)
+magic1 = posx(-373.6, 187, 190.3, 0.9, -90.0, -180.0)
+magic2 = posx(-374.1, 187, 187.9, 0.9, -90, -180.0)
+magic3 = posx(-375.5, 187, 188.1, 1.0, -90, 180)
+magic4 = posx(-371.5, 187, 187, 1.0, -90.1, -180.0)
+trial1 = posx(-375, 186.9, 187, 0.9, -89.7, 180.0)
+trial2 = posx(-372.4, 186.9, 187, 0.9, -89.7, 180.0)
+success_box = posx(-495.1, 621.2, 463.0, 120.2, 176.8, -150.7)
+reject_box = posx(-470.1, 825.8, 525.0, 159.3, 178.1, -113.5)
+set_mode_analog_output(1,DR_ANALOG_VOLTAGE) #output
+set_mode_analog_input(1, DR_ANALOG_VOLTAGE) #input
+
+# Magic happend
+# while True:
+set_digital_output(5,ON)
+# movel(posx(-367.1, 182.7, 271.2, 1.7, -80.2, 173.6), v=10, a=10)
+movel(magic1, v=10, a=10)
+movel(magic2, v=10, a=10)
+movel(trial1, v=10, a=10)
+movel(trial2, v=10, a=10)
+# movel(magic3, v=10, a=10)
+# movel(magic4, v=10, a=10)
+# wait(2)
+# set_digital_output(5,OFF)
+# wait(2)
