@@ -17,10 +17,10 @@ int analogPin = A1; // potentiometer read the Robot arm value
 float val = 0;  // variable to store the value read
 
 //Pins actuator
-int pinAct2In = 10;     //Actuator1
-int pinAct2Out = 11;    //Actuator1
-int pinAct1In = 12;     //Actuator2
-int pinAct1Out = 13;    //Actuator2
+int pinAct1In = 12;     //Actuator1
+int pinAct1Out = 13;    //Actuator1
+int pinAct2In = 10;     //Actuator2
+int pinAct2Out = 11;    //Actuator2
 
 int Raiseerror = 53; //fout als er geen pcb is
 
@@ -97,7 +97,7 @@ void checkSensors() {
 }
 
 void ServoCamera(int newAngle){   // 0 degree: open  // 90 degree: close
-  int stepDelay = 30;             // The delay between steps(ms), if increased: slow down gripper
+  int stepDelay = 50;             // The delay between steps(ms), if increased: slow down gripper
   currentAngle = myservo.read();  // Update the current position
 
   if (newAngle > currentAngle) {  // If it is closing: move at a delayed speed
