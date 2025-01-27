@@ -204,10 +204,12 @@ void loop() {
     /*digitalWrite(52, HIGH);
     delay(1000); // Wacht 1000 milliseconden (1 seconde)*/
     GlueStation(1350);
-
-  // Zet pin 52 laag (LOW)
-  digitalWrite(52, LOW);
-  } else if (val >= 4.6 && val <= 5.0) {}
+    digitalWrite(52, LOW);
+  } else if (val >= 4.6 && val <= 5.0) {  //Stop both actuators
+    StilstandAct(1);
+    StilstandAct(2);
+  }
+  
   val=0.0;
   // Turn the stpper motor (glue station) off when it is not being used
   last_message_time = millis();                   // Read the number of steps from the serial input
