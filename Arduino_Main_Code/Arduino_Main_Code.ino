@@ -119,10 +119,14 @@ void ExtendAct(int actuator)
   if (actuator==1){             // open actuator 1
     digitalWrite(pinAct1In, HIGH);
     digitalWrite(pinAct1Out, LOW);
+    digitalWrite(pinAct2In, LOW);
+    digitalWrite(pinAct2Out, LOW);
     //delay(8000);      
     }  else {                   // open actuator 2
     digitalWrite(pinAct2In, HIGH);
     digitalWrite(pinAct2Out, LOW);
+    digitalWrite(pinAct1In, LOW);
+    digitalWrite(pinAct1Out, LOW);
     //delay(4000);      
     }
 }
@@ -133,10 +137,14 @@ void RetractAct(int actuator)
   if (actuator==1){           // close actuator 1
     digitalWrite(pinAct1In, LOW);
     digitalWrite(pinAct1Out, HIGH);
+    digitalWrite(pinAct2In, LOW);
+    digitalWrite(pinAct2Out, LOW);
     //delay(8000);   
     }  else {                 // open actuator 2
     digitalWrite(pinAct2In, LOW);
     digitalWrite(pinAct2Out, HIGH);
+    digitalWrite(pinAct1In, LOW);
+    digitalWrite(pinAct1Out, LOW);
     //delay(4000);    
     }
 }
