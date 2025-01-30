@@ -35,7 +35,7 @@ uint64_t last_message_time = 0;
 
 /*######################################################### Set-Up ################################################################*/
 void setup() {
-  Serial.begin(115200);           //  setup serial
+  Serial.begin(9600);           //  setup serial
   pinMode(52, OUTPUT);
   pinMode(SENSOR1_PIN, INPUT); // Set SENSOR1_PIN as input
   pinMode(SENSOR2_PIN, INPUT); // Set SENSOR2_PIN as input
@@ -119,10 +119,14 @@ void ExtendAct(int actuator)
   if (actuator==1){             // open actuator 1
     digitalWrite(pinAct1In, HIGH);
     digitalWrite(pinAct1Out, LOW);
+    digitalWrite(pinAct2In, LOW);
+    digitalWrite(pinAct2Out, LOW);
     //delay(8000);      
     }  else {                   // open actuator 2
     digitalWrite(pinAct2In, HIGH);
     digitalWrite(pinAct2Out, LOW);
+    digitalWrite(pinAct1In, LOW);
+    digitalWrite(pinAct1Out, LOW);
     //delay(4000);      
     }
 }
@@ -133,10 +137,14 @@ void RetractAct(int actuator)
   if (actuator==1){           // close actuator 1
     digitalWrite(pinAct1In, LOW);
     digitalWrite(pinAct1Out, HIGH);
+    digitalWrite(pinAct2In, LOW);
+    digitalWrite(pinAct2Out, LOW);
     //delay(8000);   
     }  else {                 // open actuator 2
     digitalWrite(pinAct2In, LOW);
     digitalWrite(pinAct2Out, HIGH);
+    digitalWrite(pinAct1In, LOW);
+    digitalWrite(pinAct1Out, LOW);
     //delay(4000);    
     }
 }
@@ -170,10 +178,11 @@ void GlueStation(long steps){       //full rotation of stepper motor is 1600 ste
 /*######################################################### Loop ################################################################*/
 
 void loop() {
-  
+  ///*
   val = (analogRead(analogPin) );  // read the input pin
   val = val * (5.0 / 1023.0);     
-  
+  Serial.println(val);
+  //*/
   checkSensors(); // Call the function to check sensor states
   /*
   if (val == 0.0){
@@ -193,9 +202,9 @@ void loop() {
     ServoCamera(85);
   } else if (val >= 2.1 && val <= 2.5) { //Extend Actuator 1
     Serial.println("extend 1 ");
-    if (digitalRead(endswitchPin) == HIGH) {ExtendAct(1);}       else {StilstandAct(1);}
+    {ExtendAct(1);}    
   } else if (val >= 2.6 && val <= 3.0) { //Retract Actuator 1
-    if (digitalRead(endswitchPin) == HIGH) {RetractAct(1);}      else {StilstandAct(1);}
+     {RetractAct(1);}
   } else if (val >= 3.1 && val <= 3.5) { //Extend Actuator 2
     ExtendAct(2);
   } else if (val >= 3.6 && val <= 4.0) { //Retract Actuator 2
@@ -204,10 +213,12 @@ void loop() {
     /*digitalWrite(52, HIGH);
     delay(1000); // Wacht 1000 milliseconden (1 seconde)*/
     GlueStation(1350);
-
-  // Zet pin 52 laag (LOW)
-  digitalWrite(52, LOW);
-  } else if (val >= 4.6 && val <= 5.0) {}
+    digitalWrite(52, LOW);
+  } else if (val >= 4.6 && val <= 5.0) {  //Stop both actuators
+    StilstandAct(1);
+    StilstandAct(2);
+  }
+  
   val=0.0;
   // Turn the stpper motor (glue station) off when it is not being used
   last_message_time = millis();                   // Read the number of steps from the serial input
